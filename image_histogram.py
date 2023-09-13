@@ -20,20 +20,17 @@ def add_gaussian_noise(image: NDArray, mean: int = 0, std_dev: int = 50) -> NDAr
     return noisy_image
 
 def mse(original_image: NDArray, distorted_image: NDArray) -> float:
-    """Compute the Mean Squared Error between two images."""
     err = np.sum((original_image.astype("float") - distorted_image.astype("float")) ** 2)
     err /= float(original_image.shape[0] * original_image.shape[1])
     return err
 
 def psnr(original_image, distorted_image, max_pixel_value=255.0) -> Union[float, str]:
-    """Compute the Peak Signal-to-Noise Ratio between two images."""
     mean_squared_err = mse(original_image, distorted_image)
     if mean_squared_err == 0:
         return "Same Image"
     return 20 * np.log10(max_pixel_value / np.sqrt(mean_squared_err))
 
 def modified_psnr(original_image, distorted_image, max_pixel_value=255.0) -> Union[float, str]:
-    """Compute the modified PSNR between two images."""
     mean_squared_err = mse(original_image, distorted_image)
     if mean_squared_err == 0:
         return "Same Image"
@@ -55,7 +52,7 @@ def apply_mask(image: NDArray, mask: NDArray, multiplier: float = 1.0) -> NDArra
     return output_image
 
 
-images_list = ['lena.tif', 'barb.tif', 'moon.tiff']
+images_list = ['lena.tif', 'camera.tif', 'moon.tiff']
 mask = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
 mask_multiplier = 1/9
 
