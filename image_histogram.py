@@ -66,13 +66,19 @@ for image_file in images_list:
 
     noisy_image_20 = add_gaussian_noise(image, mean=0, std_dev=20)
     noisy_histogram_20 = calculate_histogram(noisy_image_20)
+    psnr_noisy_20 = psnr(image, noisy_image_20)
+    print(f"PSNR Imagem Ruído Nível 1: {psnr_noisy_20}")
 
     noisy_image_50 = add_gaussian_noise(image, mean=0, std_dev=50)
     noisy_histogram_50 = calculate_histogram(noisy_image_50)
     masked_noisy_50 = apply_mask(noisy_image_50, mask, mask_multiplier)
+    psnr_noisy_50 = psnr(image, noisy_image_50)
+    print(f"PSNR Imagem Ruído Nível 2: {psnr_noisy_50}")
 
     noisy_image_80 = add_gaussian_noise(image, mean=0, std_dev=80)
     noisy_histogram_80 = calculate_histogram(noisy_image_80)
+    psnr_noisy_80 = psnr(image, noisy_image_80)
+    print(f"PSNR Imagem Ruído Nível 3: {psnr_noisy_80}")
 
     plt.figure(figsize=(10, 12))
 
