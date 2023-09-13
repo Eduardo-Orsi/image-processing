@@ -39,39 +39,51 @@ def modified_psnr(original_image, distorted_image, max_pixel_value=255.0) -> Uni
         return "Same Image"
     return 10 * np.log10(max_pixel_value / mean_squared_err)
 
-image = cv2.imread('lena.tif', cv2.IMREAD_GRAYSCALE)
+def apply_mask(image: NDArray, mask: NDArray) -> NDArray:
+    output_image = np.zeros_like(image)
+    image_height, image_width = image.shape
+    mask_height, mask_width = mask.shape
+    mask_center_x = mask_width // 2
+    mask_center_y = mask_height // 2
 
+    for y in range(mask_center_y, image_height - mask_center_y):
+        for x in range(mask_center_x, image_width - mask_center_x):
+            roi = image[y - mask_center_y:y + mask_center_y + 1, x - mask_center_x:x + mask_center_x + 1]
+            convolution_result = np.sum(roi * mask)
+            output_image[y, x] = convolution_result
+
+    return output_image
+
+
+image = cv2.imread('lena.tif', cv2.IMREAD_GRAYSCALE)
 noisy_image = add_gaussian_noise(image, mean=0, std_dev=50)
 
 original_histogram = calculate_histogram(image)
 noisy_histogram = calculate_histogram(noisy_image)
 
-psnr_result = psnr(image, noisy_image)
-print(psnr_result)
+plt.figure(figsize=(8, 12))
 
-# plt.figure(figsize=(8, 12))
+plt.subplot(4, 2, 1)
+plt.title('Original Image')
+plt.axis('off')
+plt.imshow(image, cmap='gray')
 
-# plt.subplot(4, 2, 1)
-# plt.title('Original Image')
-# plt.axis('off')
-# plt.imshow(image, cmap='gray')
+plt.subplot(4, 2, 2)
+plt.title('Histogram (Original)')
+plt.xlabel('Pixel Value')
+plt.ylabel('Frequency')
+plt.bar(range(256), original_histogram)
 
-# plt.subplot(4, 2, 2)
-# plt.title('Histogram (Original)')
-# plt.xlabel('Pixel Value')
-# plt.ylabel('Frequency')
-# plt.bar(range(256), original_histogram)
+plt.subplot(4, 2, 3)
+plt.title('Noisy Image')
+plt.axis('off')
+plt.imshow(noisy_image, cmap='gray')
 
-# plt.subplot(4, 2, 3)
-# plt.title('Noisy Image')
-# plt.axis('off')
-# plt.imshow(noisy_image, cmap='gray')
+plt.subplot(4, 2, 4)
+plt.title('Histogram (Noisy)')
+plt.xlabel('Pixel Value')
+plt.ylabel('Frequency')
+plt.bar(range(256), noisy_histogram)
 
-# plt.subplot(4, 2, 4)
-# plt.title('Histogram (Noisy)')
-# plt.xlabel('Pixel Value')
-# plt.ylabel('Frequency')
-# plt.bar(range(256), noisy_histogram)
-
-# plt.tight_layout()
-# plt.show()
+plt.tight_layout()
+plt.show()
