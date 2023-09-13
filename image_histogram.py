@@ -19,6 +19,19 @@ def add_gaussian_noise(image: NDArray, mean: int = 0, std_dev: int = 50) -> NDAr
     noisy_image = np.clip(image + noise, 0, 255).astype(np.uint8)
     return noisy_image
 
+def mse(original_image: NDArray, distorted_image: NDArray) -> float:
+    """Compute the Mean Squared Error between two images."""
+    err = np.sum((original_image.astype("float") - distorted_image.astype("float")) ** 2)
+    err /= float(original_image.shape[0] * original_image.shape[1])
+    return err
+
+def psnr(image1, image2, max_pixel_value=255.0):
+    """Compute the Peak Signal-to-Noise Ratio between two images."""
+    mean_squared_err = mse(image1, image2)
+    if mean_squared_err == 0:
+        return "Same Image"
+    return 20 * np.log10(max_pixel_value / np.sqrt(mean_squared_err))
+
 image = cv2.imread('lena.tif', cv2.IMREAD_GRAYSCALE)
 
 noisy_image = add_gaussian_noise(image, mean=0, std_dev=50)
