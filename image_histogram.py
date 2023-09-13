@@ -55,35 +55,44 @@ def apply_mask(image: NDArray, mask: NDArray) -> NDArray:
     return output_image
 
 
-image = cv2.imread('lena.tif', cv2.IMREAD_GRAYSCALE)
-noisy_image = add_gaussian_noise(image, mean=0, std_dev=50)
+images_list = ['lena.tif', 'barb.tif', 'moon.tiff']
 
-original_histogram = calculate_histogram(image)
-noisy_histogram = calculate_histogram(noisy_image)
+for image_file in images_list:
+    image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
+    noisy_image = add_gaussian_noise(image, mean=0, std_dev=50)
+    original_histogram = calculate_histogram(image)
+    noisy_histogram = calculate_histogram(noisy_image)
 
-plt.figure(figsize=(8, 12))
+    plt.figure(figsize=(8, 12))
 
-plt.subplot(4, 2, 1)
-plt.title('Original Image')
-plt.axis('off')
-plt.imshow(image, cmap='gray')
+    plt.subplot(4, 2, 1)
+    plt.title('Original Image')
+    plt.axis('off')
+    plt.imshow(image, cmap='gray')
 
-plt.subplot(4, 2, 2)
-plt.title('Histogram (Original)')
-plt.xlabel('Pixel Value')
-plt.ylabel('Frequency')
-plt.bar(range(256), original_histogram)
+    plt.subplot(4, 2, 2)
+    plt.title('Histogram (Original)')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+    plt.bar(range(256), original_histogram)
 
-plt.subplot(4, 2, 3)
-plt.title('Noisy Image')
-plt.axis('off')
-plt.imshow(noisy_image, cmap='gray')
+    plt.subplot(4, 2, 3)
+    plt.title('Noisy Image')
+    plt.axis('off')
+    plt.imshow(noisy_image, cmap='gray')
 
-plt.subplot(4, 2, 4)
-plt.title('Histogram (Noisy)')
-plt.xlabel('Pixel Value')
-plt.ylabel('Frequency')
-plt.bar(range(256), noisy_histogram)
+    plt.subplot(4, 2, 4)
+    plt.title('Histogram (Noisy)')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+    plt.bar(range(256), noisy_histogram)
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    plt.show()
+    
+    if plt.waitforbuttonpress() == True:
+        if 'q' == chr(plt.waitforbuttonpress()):
+            plt.close()
+            continue  # This breaks out of the for loop
+        else:
+            plt.close()
