@@ -39,7 +39,7 @@ def modified_psnr(original_image, distorted_image, max_pixel_value=255.0) -> Uni
         return "Same Image"
     return 10 * np.log10(max_pixel_value / mean_squared_err)
 
-def apply_mask(image: NDArray, mask: NDArray) -> NDArray:
+def apply_mask(image: NDArray, mask: NDArray, multiplier: float = 1.0) -> NDArray:
     output_image = np.zeros_like(image)
     image_height, image_width = image.shape
     mask_height, mask_width = mask.shape
@@ -49,50 +49,97 @@ def apply_mask(image: NDArray, mask: NDArray) -> NDArray:
     for y in range(mask_center_y, image_height - mask_center_y):
         for x in range(mask_center_x, image_width - mask_center_x):
             roi = image[y - mask_center_y:y + mask_center_y + 1, x - mask_center_x:x + mask_center_x + 1]
-            convolution_result = np.sum(roi * mask)
+            convolution_result = np.sum(roi * mask) * multiplier
             output_image[y, x] = convolution_result
 
     return output_image
 
 
 images_list = ['lena.tif', 'barb.tif', 'moon.tiff']
+mask = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+mask_multiplier = 1/9
 
 for image_file in images_list:
+
     image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
-    noisy_image = add_gaussian_noise(image, mean=0, std_dev=50)
     original_histogram = calculate_histogram(image)
-    noisy_histogram = calculate_histogram(noisy_image)
 
-    plt.figure(figsize=(8, 12))
+    noisy_image_20 = add_gaussian_noise(image, mean=0, std_dev=20)
+    noisy_histogram_20 = calculate_histogram(noisy_image_20)
 
-    plt.subplot(4, 2, 1)
+    noisy_image_50 = add_gaussian_noise(image, mean=0, std_dev=50)
+    noisy_histogram_50 = calculate_histogram(noisy_image_50)
+    masked_noisy_50 = apply_mask(noisy_image_50, mask, mask_multiplier)
+
+    noisy_image_80 = add_gaussian_noise(image, mean=0, std_dev=80)
+    noisy_histogram_80 = calculate_histogram(noisy_image_80)
+
+    plt.figure(figsize=(10, 12))
+
+    # Original Image
+    plt.subplot(4, 4, 1)
     plt.title('Original Image')
     plt.axis('off')
     plt.imshow(image, cmap='gray')
 
-    plt.subplot(4, 2, 2)
+    # Original Image Histogram
+    plt.subplot(4, 4, 2)
     plt.title('Histogram (Original)')
     plt.xlabel('Pixel Value')
     plt.ylabel('Frequency')
     plt.bar(range(256), original_histogram)
 
-    plt.subplot(4, 2, 3)
-    plt.title('Noisy Image')
+    # Noisy Image 20
+    plt.subplot(4, 4, 3)
+    plt.title('Noisy Image 20')
     plt.axis('off')
-    plt.imshow(noisy_image, cmap='gray')
+    plt.imshow(noisy_image_20, cmap='gray')
 
-    plt.subplot(4, 2, 4)
-    plt.title('Histogram (Noisy)')
+    # Noisy Image 20 Histogram
+    plt.subplot(4, 4, 4)
+    plt.title('Histogram (Noisy 20)')
     plt.xlabel('Pixel Value')
     plt.ylabel('Frequency')
-    plt.bar(range(256), noisy_histogram)
+    plt.bar(range(256), noisy_histogram_20)
+
+    # Noisy Image 50
+    plt.subplot(4, 4, 5)
+    plt.title('Noisy Image 50')
+    plt.axis('off')
+    plt.imshow(noisy_image_50, cmap='gray')
+
+    # Noisy Image 50 Histogram
+    plt.subplot(4, 4, 6)
+    plt.title('Histogram (Noisy 50)')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+    plt.bar(range(256), noisy_histogram_50)
+
+    # Noisy Image 80
+    plt.subplot(4, 4, 7)
+    plt.title('Noisy Image 80')
+    plt.axis('off')
+    plt.imshow(noisy_image_80, cmap='gray')
+
+    # Noisy Image 80 Histogram
+    plt.subplot(4, 4, 8)
+    plt.title('Histogram (Noisy 80)')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+    plt.bar(range(256), noisy_histogram_80)
+
+    # Noisy Image 50
+    plt.subplot(4, 4, 9)
+    plt.title('Noisy Image 50')
+    plt.axis('off')
+    plt.imshow(noisy_image_50, cmap='gray')
+
+    # Masked Noisy Image 50
+    plt.subplot(4, 4, 10)
+    plt.title('Masked Noisy Image 50')
+    plt.axis('off')
+    plt.imshow(masked_noisy_50, cmap='gray')
 
     plt.tight_layout()
     plt.show()
-    
-    if plt.waitforbuttonpress() == True:
-        if 'q' == chr(plt.waitforbuttonpress()):
-            plt.close()
-            continue  # This breaks out of the for loop
-        else:
-            plt.close()
+    plt.waitforbuttonpress()
