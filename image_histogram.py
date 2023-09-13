@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import cv2
 import numpy as np
@@ -25,12 +25,19 @@ def mse(original_image: NDArray, distorted_image: NDArray) -> float:
     err /= float(original_image.shape[0] * original_image.shape[1])
     return err
 
-def psnr(image1, image2, max_pixel_value=255.0):
+def psnr(original_image, distorted_image, max_pixel_value=255.0) -> Union[float, str]:
     """Compute the Peak Signal-to-Noise Ratio between two images."""
-    mean_squared_err = mse(image1, image2)
+    mean_squared_err = mse(original_image, distorted_image)
     if mean_squared_err == 0:
         return "Same Image"
     return 20 * np.log10(max_pixel_value / np.sqrt(mean_squared_err))
+
+def modified_psnr(original_image, distorted_image, max_pixel_value=255.0) -> Union[float, str]:
+    """Compute the modified PSNR between two images."""
+    mean_squared_err = mse(original_image, distorted_image)
+    if mean_squared_err == 0:
+        return "Same Image"
+    return 10 * np.log10(max_pixel_value / mean_squared_err)
 
 image = cv2.imread('lena.tif', cv2.IMREAD_GRAYSCALE)
 
@@ -39,29 +46,32 @@ noisy_image = add_gaussian_noise(image, mean=0, std_dev=50)
 original_histogram = calculate_histogram(image)
 noisy_histogram = calculate_histogram(noisy_image)
 
-plt.figure(figsize=(8, 12))
+psnr_result = psnr(image, noisy_image)
+print(psnr_result)
 
-plt.subplot(4, 2, 1)
-plt.title('Original Image')
-plt.axis('off')
-plt.imshow(image, cmap='gray')
+# plt.figure(figsize=(8, 12))
 
-plt.subplot(4, 2, 2)
-plt.title('Histogram (Original)')
-plt.xlabel('Pixel Value')
-plt.ylabel('Frequency')
-plt.bar(range(256), original_histogram)
+# plt.subplot(4, 2, 1)
+# plt.title('Original Image')
+# plt.axis('off')
+# plt.imshow(image, cmap='gray')
 
-plt.subplot(4, 2, 3)
-plt.title('Noisy Image')
-plt.axis('off')
-plt.imshow(noisy_image, cmap='gray')
+# plt.subplot(4, 2, 2)
+# plt.title('Histogram (Original)')
+# plt.xlabel('Pixel Value')
+# plt.ylabel('Frequency')
+# plt.bar(range(256), original_histogram)
 
-plt.subplot(4, 2, 4)
-plt.title('Histogram (Noisy)')
-plt.xlabel('Pixel Value')
-plt.ylabel('Frequency')
-plt.bar(range(256), noisy_histogram)
+# plt.subplot(4, 2, 3)
+# plt.title('Noisy Image')
+# plt.axis('off')
+# plt.imshow(noisy_image, cmap='gray')
 
-plt.tight_layout()
-plt.show()
+# plt.subplot(4, 2, 4)
+# plt.title('Histogram (Noisy)')
+# plt.xlabel('Pixel Value')
+# plt.ylabel('Frequency')
+# plt.bar(range(256), noisy_histogram)
+
+# plt.tight_layout()
+# plt.show()
