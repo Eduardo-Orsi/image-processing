@@ -51,8 +51,7 @@ def apply_mask(image: NDArray, mask: NDArray, multiplier: float = 1.0) -> NDArra
 
     return output_image
 
-
-images_list = ['lena.tif', 'camera.tif', 'moon.tiff']
+images_list = ['lena.tif', 'barb.tif', 'moon.tiff']
 mask = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
 mask_multiplier = 1/9
 
@@ -60,22 +59,25 @@ for image_file in images_list:
 
     image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
     original_histogram = calculate_histogram(image)
+    original_image_masked = apply_mask(image, mask, mask_multiplier)
 
     noisy_image_20 = add_gaussian_noise(image, mean=0, std_dev=20)
     noisy_histogram_20 = calculate_histogram(noisy_image_20)
+    masked_noisy_20 = apply_mask(noisy_image_20, mask, mask_multiplier)
     psnr_noisy_20 = psnr(image, noisy_image_20)
-    print(f"PSNR Imagem Ruído Nível 1: {psnr_noisy_20}")
+    print(f"PSNR {image_file} Ruído Nível 1 (20): {psnr_noisy_20}")
 
     noisy_image_50 = add_gaussian_noise(image, mean=0, std_dev=50)
     noisy_histogram_50 = calculate_histogram(noisy_image_50)
     masked_noisy_50 = apply_mask(noisy_image_50, mask, mask_multiplier)
     psnr_noisy_50 = psnr(image, noisy_image_50)
-    print(f"PSNR Imagem Ruído Nível 2: {psnr_noisy_50}")
+    print(f"PSNR {image_file} Ruído Nível 2 (50): {psnr_noisy_50}")
 
     noisy_image_80 = add_gaussian_noise(image, mean=0, std_dev=80)
     noisy_histogram_80 = calculate_histogram(noisy_image_80)
+    masked_noisy_80 = apply_mask(noisy_image_80, mask, mask_multiplier)
     psnr_noisy_80 = psnr(image, noisy_image_80)
-    print(f"PSNR Imagem Ruído Nível 3: {psnr_noisy_80}")
+    print(f"PSNR {image_file} Ruído Nível 3 (80): {psnr_noisy_80} \n")
 
     plt.figure(figsize=(10, 12))
 
@@ -131,18 +133,62 @@ for image_file in images_list:
     plt.ylabel('Frequency')
     plt.bar(range(256), noisy_histogram_80)
 
+    plt.tight_layout()
+    plt.show()
+    plt.waitforbuttonpress()
+    plt.close()
+
+    plt.figure(figsize=(10, 12))
+
+    # Original Image
+    plt.subplot(4, 4, 1)
+    plt.title('Original Image')
+    plt.axis('off')
+    plt.imshow(image, cmap='gray')
+
+    # Masked Original Image
+    plt.subplot(4, 4, 2)
+    plt.title('Masked Original Image')
+    plt.axis('off')
+    plt.imshow(original_image_masked, cmap='gray')
+
+    # Noisy Image 20
+    plt.subplot(4, 4, 3)
+    plt.title('Noisy Image 20')
+    plt.axis('off')
+    plt.imshow(noisy_image_20, cmap='gray')
+
+    # Masked Noisy Image 20
+    plt.subplot(4, 4, 4)
+    plt.title('Masked Noisy Image 20')
+    plt.axis('off')
+    plt.imshow(masked_noisy_20, cmap='gray')
+
     # Noisy Image 50
-    plt.subplot(4, 4, 9)
+    plt.subplot(4, 4, 5)
     plt.title('Noisy Image 50')
     plt.axis('off')
     plt.imshow(noisy_image_50, cmap='gray')
 
     # Masked Noisy Image 50
-    plt.subplot(4, 4, 10)
+    plt.subplot(4, 4, 6)
     plt.title('Masked Noisy Image 50')
     plt.axis('off')
     plt.imshow(masked_noisy_50, cmap='gray')
 
+    # Noisy Image 80
+    plt.subplot(4, 4, 7)
+    plt.title('Noisy Image 80')
+    plt.axis('off')
+    plt.imshow(noisy_image_80, cmap='gray')
+
+    # Masked Noisy Image 80
+    plt.subplot(4, 4, 8)
+    plt.title('Masked Noisy Image 80')
+    plt.axis('off')
+    plt.imshow(masked_noisy_80, cmap='gray')
+
     plt.tight_layout()
     plt.show()
     plt.waitforbuttonpress()
+    plt.close()
